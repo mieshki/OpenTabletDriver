@@ -1,53 +1,22 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Simple bash script to easily build to verify functionality.
-#
-# Usage of --runtime is preferred, but the arguments 'windows', 'macos' or
-# 'linux' can be used as a shorthand to specify an x64 runtime directly
+cd "$(dirname "$0")"
 
-output="bin"
-config="Release"
-options=()
+if ! command -v dotnet &> /dev/null; then
+    for nix_path in /nix/store/*dotnet-sdk*/share/dotnet; do
+        if [ -x "$nix_path/dotnet" ]; then
+            export PATH="$nix_path:$PATH"
+            break
+        fi
+    done
+fi
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    -o=*|--output=*)
-      output="${1#*=}"
-      ;;
-    -o|--output)
-      output="$2"
-      shift
-      ;;
-    -c=*|--configuration=*)
-      config="${1#*=}"
-      ;;
-    -c|--configuration)
-      config="$2"
-      shift
-      ;;
-    windows)
-      options+=("--runtime" "win-x64")
-      ;;
-    macos)
-      options+=("--runtime" "osx-x64")
-      ;;
-    macos-signed)
-      options+=("--runtime" "osx-x64" "--signed" "true")
-      ;;
-    linux)
-      options+=("--runtime" "linux-x64")
-      ;;
-    --)
-      shift
-      options+=("$@")
-      break
-      ;;
-    *)
-      options+=("$1")
-      ;;
-  esac
-  shift
-done
+if ! command -v dotnet &> /dev/null; then
+    echo "ERROR: dotnet not found in PATH or /nix/store. Install .NET 8 SDK first." >&2
+    exit 1
+fi
 
-# provide defaults, then pass everything else as-is
-. "$(dirname ${BASH_SOURCE[0]})"/eng/bash/package.sh -o "${output}" -c "${config}" "${options[@]}"
+echo "Building OpenTabletDriver (Linux)..."
+dotnet build OpenTabletDriver.Linux.slnf
+echo "Build complete."
