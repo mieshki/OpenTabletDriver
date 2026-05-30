@@ -2,8 +2,8 @@
   "Name": "Wonkleboard Lite mk.1",
   "Specifications": {
     "Digitizer": {
-      "Width": 244.0,
-      "Height": 137.5,
+      "Width": 180.0,
+      "Height": 110.0,
       "MaxX": 10000,
       "MaxY": 10000
     },
